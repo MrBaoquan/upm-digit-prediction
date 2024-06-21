@@ -1,0 +1,22 @@
+{
+  "name": "com.software.template",
+  "version": "1.0.0",
+  "displayName": "Package Template",
+  "description": "This is an example package",
+  "unity": "2019.1",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {
+    "com.example.some-package": "1.0.0"
+ },
+ "keywords": [
+    "keyword1",
+    "keyword2",
+    "keyword3"
+  ],
+  "author": {
+    "name": "Package Market",
+    "email": "unity@example.com"
+  }
+}

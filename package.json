@@ -1,0 +1,28 @@
+{
+  "name": "com.parful.digit-prediction",
+  "version": "1.0.0",
+  "displayName": "Handwritten Digit Recognition",
+  "description": "手写数字识别功能",
+  "unity": "2021.1",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {
+    "com.unity.sentis": "1.2.0-exp.2",
+    "com.parful.uipainting": "1.0.0"
+ },
+ "keywords": [
+    "ui painting",
+    "handwritten recognition"
+  ],
+  "author": {
+    "name": "MrBaoquan",
+    "email": "mrma617@gmail.com"
+  },
+  "samples": [
+    {
+      "displayName": "Demo",
+      "path": "Samples~/Demo"
+    }
+  ]
+}
