@@ -1,6 +1,6 @@
 {
   "name": "com.parful.digit-prediction",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Handwritten Digit Recognition",
   "description": "手写数字识别功能",
   "unity": "2021.1",
