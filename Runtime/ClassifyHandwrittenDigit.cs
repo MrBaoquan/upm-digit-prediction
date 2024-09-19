@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Sentis;
 using Unity.Sentis.Layers;
 using System.Linq;
+using System.Collections.Generic;
 
 public class ClassifyHandwrittenDigit : MonoBehaviour
 {
@@ -34,7 +35,8 @@ public class ClassifyHandwrittenDigit : MonoBehaviour
     public (
         float probability,
         int predictedNumber,
-        Texture2D previewTex
+        Texture2D previewTex,
+        List<float> probabilities
     ) GetMostLikelyDigitProbability(Texture2D inputTex)
     {
         var _inputTexParam = preprocessImage(cropTextureWithPadding(inputTex));
@@ -60,7 +62,13 @@ public class ClassifyHandwrittenDigit : MonoBehaviour
         var predictedNumber = indexOfMaxProba[0];
         var probability = probabilities[predictedNumber];
 
-        return (probability, predictedNumber, _inputTexParam);
+        List<float> probabilitiesList = new List<float>();
+        for (int i = 0; i < 10; i++)
+        {
+            probabilitiesList.Add(probabilities[i]);
+        }
+
+        return (probability, predictedNumber, _inputTexParam, probabilitiesList);
     }
 
     private Texture2D cropTextureWithPadding(Texture2D source)
