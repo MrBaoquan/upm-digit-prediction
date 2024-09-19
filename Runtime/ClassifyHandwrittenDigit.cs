@@ -3,6 +3,7 @@ using Unity.Sentis;
 using Unity.Sentis.Layers;
 using System.Linq;
 using System.Collections.Generic;
+using DigitPrediction;
 
 public class ClassifyHandwrittenDigit : MonoBehaviour
 {
@@ -39,7 +40,7 @@ public class ClassifyHandwrittenDigit : MonoBehaviour
         List<float> probabilities
     ) GetMostLikelyDigitProbability(Texture2D inputTex)
     {
-        var _inputTexParam = preprocessImage(cropTextureWithPadding(inputTex));
+        var _inputTexParam = preprocessImage(TextureTool.cropTextureWithPadding(inputTex));
         inputTensor?.Dispose();
 
         // Convert the texture into a tensor, it has width=W, height=W, and channels=1:
@@ -69,115 +70,6 @@ public class ClassifyHandwrittenDigit : MonoBehaviour
         }
 
         return (probability, predictedNumber, _inputTexParam, probabilitiesList);
-    }
-
-    private Texture2D cropTextureWithPadding(Texture2D source)
-    {
-        source = ResizeByBlit(source, 1000, 1000);
-        int xmin = source.width;
-        int xmax = 0;
-        int ymin = source.height;
-        int ymax = 0;
-
-        // 寻找手写内容的边界
-        for (int y = 0; y < source.height; y++)
-        {
-            for (int x = 0; x < source.width; x++)
-            {
-                Color color = source.GetPixel(x, y);
-                if (color.r > 0.5f) // 白色或者近白色
-                {
-                    if (x < xmin)
-                        xmin = x;
-                    if (x > xmax)
-                        xmax = x;
-                    if (y < ymin)
-                        ymin = y;
-                    if (y > ymax)
-                        ymax = y;
-                }
-            }
-        }
-
-        // 计算最小包围矩形的宽度和高度
-        int width = xmax - xmin + 1;
-        int height = ymax - ymin + 1;
-
-        // 添加 1/4 宽度的边距
-        var padding = Mathf.Max(width, height) / 5;
-        xmin -= padding;
-        xmax += padding;
-        ymin -= padding;
-        ymax += padding;
-
-        // 确保裁剪区域不超出源图像的范围
-        xmin = Mathf.Clamp(xmin, 0, source.width - 1);
-        xmax = Mathf.Clamp(xmax, 0, source.width - 1);
-        ymin = Mathf.Clamp(ymin, 0, source.height - 1);
-        ymax = Mathf.Clamp(ymax, 0, source.height - 1);
-
-        width = xmax - xmin + 1;
-        height = ymax - ymin + 1;
-
-        // 如果宽度小于高度，则调整宽度以匹配高度，并居中内容
-        if (width < height)
-        {
-            int diff = height - width;
-            xmin -= diff / 2;
-            xmax += diff / 2;
-
-            // 确保裁剪区域不超出源图像的范围
-            xmin = Mathf.Clamp(xmin, 0, source.width - 1);
-            xmax = Mathf.Clamp(xmax, 0, source.width - 1);
-
-            width = xmax - xmin + 1;
-        }
-
-        // 创建新纹理并复制像素数据
-        Texture2D croppedTexture = new Texture2D(width, height);
-        Color[] pixels = source.GetPixels(xmin, ymin, width, height);
-        croppedTexture.SetPixels(pixels);
-        croppedTexture.Apply();
-
-        return croppedTexture;
-    }
-
-    public Texture2D ResizeByBlit(
-        Texture texture,
-        int width,
-        int height,
-        FilterMode filterMode = FilterMode.Bilinear
-    )
-    {
-        RenderTexture active = RenderTexture.active;
-        RenderTexture temporary = RenderTexture.GetTemporary(
-            width,
-            height,
-            0,
-            RenderTextureFormat.ARGB32,
-            RenderTextureReadWrite.Default,
-            1
-        );
-        temporary.filterMode = FilterMode.Bilinear;
-        RenderTexture.active = temporary;
-        GL.Clear(clearDepth: false, clearColor: true, new Color(1f, 1f, 1f, 0f));
-        bool sRGBWrite = GL.sRGBWrite;
-        GL.sRGBWrite = false;
-        Graphics.Blit(texture, temporary);
-        Texture2D texture2D = new Texture2D(
-            width,
-            height,
-            TextureFormat.ARGB32,
-            mipChain: true,
-            linear: false
-        );
-        texture2D.filterMode = filterMode;
-        texture2D.ReadPixels(new Rect(0f, 0f, width, height), 0, 0);
-        texture2D.Apply();
-        RenderTexture.active = active;
-        RenderTexture.ReleaseTemporary(temporary);
-        GL.sRGBWrite = sRGBWrite;
-        return texture2D;
     }
 
     private Texture2D preprocessImage(Texture2D source)
