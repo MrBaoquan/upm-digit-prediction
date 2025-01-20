@@ -1,12 +1,28 @@
 using UnityEngine;
 
-namespace DigitPrediction
+namespace DigitPrediction.Utils
 {
     public static class TextureTool
     {
-        public static Texture2D cropTextureWithPadding(Texture2D source)
+        public static Texture2D ToTexture2D(this Texture texture)
         {
-            source = ResizeByBlit(source, 1000, 1000);
+            RenderTexture _rt = new RenderTexture(texture.width, texture.height, 0);
+            Graphics.Blit(texture, _rt);
+
+            Texture2D _texture2D = new Texture2D(texture.width, texture.height);
+            RenderTexture.active = _rt;
+            _texture2D.ReadPixels(new Rect(0, 0, _rt.width, _rt.height), 0, 0);
+            _texture2D.Apply();
+
+            RenderTexture.active = null;
+            _rt.Release();
+            return _texture2D;
+        }
+
+        public static (Texture2D croppedTexture, Texture2D paddedTexture) CropTextureWithPadding(
+            Texture2D source
+        )
+        {
             int xmin = source.width;
             int xmax = 0;
             int ymin = source.height;
@@ -32,12 +48,23 @@ namespace DigitPrediction
                 }
             }
 
+            if (xmin == source.width || xmax == 0 || ymin == source.height || ymax == 0)
+            {
+                return (null, null);
+            }
+
             // 计算最小包围矩形的宽度和高度
             int width = xmax - xmin + 1;
             int height = ymax - ymin + 1;
 
+            // 裁剪的内容（没有 padding 的版本）
+            Texture2D croppedTexture = new Texture2D(width, height);
+            Color[] croppedPixels = source.GetPixels(xmin, ymin, width, height);
+            croppedTexture.SetPixels(croppedPixels);
+            croppedTexture.Apply();
+
             // 添加 1/4 宽度的边距
-            var padding = Mathf.Max(width, height) / 5;
+            var padding = Mathf.Max(width, height) / 6;
             xmin -= padding;
             xmax += padding;
             ymin -= padding;
@@ -56,27 +83,28 @@ namespace DigitPrediction
             int maxDimension = Mathf.Max(width, height);
             int extendedSize = maxDimension + padding * 2;
 
-            // 创建新纹理，并将其填充为黑色
-            Texture2D resultTexture = new Texture2D(extendedSize, extendedSize);
+            // 创建新纹理（带 padding 的版本）
+            Texture2D paddedTexture = new Texture2D(extendedSize, extendedSize);
             Color[] blackPixels = new Color[extendedSize * extendedSize];
             for (int i = 0; i < blackPixels.Length; i++)
             {
                 blackPixels[i] = Color.black;
             }
-            resultTexture.SetPixels(blackPixels);
+            paddedTexture.SetPixels(blackPixels);
 
             // 计算水平和垂直方向的偏移，使内容居中
             int xOffset = (extendedSize - width) / 2;
             int yOffset = (extendedSize - height) / 2;
 
-            // 获取裁剪区域的像素
-            Color[] croppedPixels = source.GetPixels(xmin, ymin, width, height);
+            // 获取裁剪区域的像素（包括 padding 的版本）
+            Color[] paddedCroppedPixels = source.GetPixels(xmin, ymin, width, height);
 
             // 将裁剪的内容复制到新纹理的居中位置
-            resultTexture.SetPixels(xOffset, yOffset, width, height, croppedPixels);
-            resultTexture.Apply();
+            paddedTexture.SetPixels(xOffset, yOffset, width, height, paddedCroppedPixels);
+            paddedTexture.Apply();
 
-            return resultTexture;
+            // 返回两个纹理
+            return (croppedTexture, paddedTexture);
         }
 
         public static Texture2D ResizeByBlit(

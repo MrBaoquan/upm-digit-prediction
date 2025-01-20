@@ -1,6 +1,6 @@
 {
   "name": "com.parful.digit-prediction",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "displayName": "Handwritten Digit Recognition",
   "description": "手写数字识别功能",
   "unity": "2021.1",
@@ -8,8 +8,8 @@
   "changelogUrl": "https://example.com/changelog.html",
   "licensesUrl": "https://example.com/licensing.html",
   "dependencies": {
-    "com.unity.sentis": "1.2.0-exp.2",
-    "com.parful.uipainting": "1.0.0"
+    "com.unity.sentis": "2.0.0",
+    "com.parful.uipainting": "1.0.1"
  },
  "keywords": [
     "ui painting",
