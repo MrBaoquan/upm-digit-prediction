@@ -92,7 +92,7 @@ namespace DigitPrediction
                 probability = probability,
                 predictedNumber = predictedNumber,
                 probabilities = results.ToList(),
-                previewTex = inputTex,
+                previewTex = _inputTexParam,
                 paddedTex = cropedTexture.paddedTexture,
                 croppedTex = cropedTexture.croppedTexture
             };
